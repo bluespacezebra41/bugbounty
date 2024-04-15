@@ -1,3 +1,37 @@
+// Function to get cookie by name
+function getCookie(name) {
+    let cookieValue = "";
+    const allCookies = document.cookie.split(';');
+    for(let i = 0; i < allCookies.length; i++) {
+        let cookie = allCookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(name + "=") === 0) {
+            cookieValue = cookie.substring(name.length + 1, cookie.length);
+            break;
+        }
+    }
+    return cookieValue;
+}
+
+// Function to parse JSON from the cookie and extract the access token
+function extractTokenFromCookie(cookieName) {
+    const jsonCookie = getCookie(cookieName);
+    try {
+        const jsonData = JSON.parse(decodeURIComponent(jsonCookie));
+        return jsonData.access_token;
+    } catch(e) {
+        console.error("Error parsing JSON from cookie or extracting the token:", e);
+        return null;
+    }
+}
+
+const accessToken = extractTokenFromCookie('_oauth2_access_v2');
+console.log(accessToken);
+
+
+
 fetch('https://my.wealthsimple.com/api/users', {
     method: 'PUT',
     headers: {
@@ -5,6 +39,7 @@ fetch('https://my.wealthsimple.com/api/users', {
         'X-Ws-Locale': 'en-CA',
         'X-Ws-Profile': 'tax',
         'X-Platform-Os': 'web',
+        'Authorization': 'Bearer ' + accessToken,
         'Sec-Ch-Ua-Mobile': '?0',
         'Accept': '*/*',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36',
